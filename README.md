@@ -38,7 +38,7 @@ FetchContent_Populate(avr_toolchain)
 set(CMAKE_TOOLCHAIN_FILE "${avr_toolchain_SOURCE_DIR}/cmake/avr_toolchain.cmake")
 ```
 
-By addition, the AVR toolchain is installed to your project as CMake dependency and you'll become able to use the macros shown below:
+The AVR toolchain is installed to your project as CMake dependency and you'll become able to use the macros shown below:
 
  - `target_configure_for_avr(the_name_of_target)`  
    Configure your target for AVR. Specifically, include directories and compilation options are added or changed.  
@@ -49,14 +49,14 @@ By addition, the AVR toolchain is installed to your project as CMake dependency 
  - `add_library_avr(the_name_of_target)`  
    Configure your target as a library for AVR. This macro invokes `target_configure_for_avr` internally.
 
-Additionally, the custom targets will be added:
+And the custom targets will be added:
 
  - `flash-{target_name}` : Flash specified target to your MCU. This target will be created only if you set variable `AVRDUDE_PORT`.
  - `read-fuse` : Read values of fusebits and output to console.
 
 ### 2. Code, and create target for AVR
 
-First, write code for AVR. For example...
+For example...
 
 ```C
 //
