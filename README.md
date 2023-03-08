@@ -26,14 +26,6 @@ If you always want to use AVR toolchain, please insert following lines into `CMa
 **NOTE:** Please insert them before `project()` statement!
 
 ```cmake
-# mcu settings
-set(AVR_MCU "atmega328p" CACHE STRING "The name of target microcontroller")
-set(AVR_FCPU 16000000 CACHE STRING "The frequency of target")
-
-# programmer settings
-set(AVRDUDE_PROGRAMMER "avrisp" CACHE STRING "The name of programmer")
-set(AVRDUDE_BAUDRATE 19200 CACHE STRING "Baudrate used for communicate between PC and programmer")
-
 # fetch and enable AVR toolchain
 include(FetchContent)
 FetchContent_Declare(
@@ -80,9 +72,23 @@ This macro adds the following custom targets and commands to your target:
  - Memory usage confirmation:  
    After the target has finished building, the memory usage calculated by `avr-objdump` is displayed to console.
 
-## Note
+## Variables
 
-Currently, this toolchain **not supports** Arduino headers, libraries, or programms(.ino).
+You can specify some options to cmake-avr. These can be checked and edited using ccmake, cmake-gui or command-line options.
+
+ - Environmental options:
+    - `ARDUINOCLI_ROOT` : Root path of arduino-cli. If you installed arduino-cli to custom directory, you need to set this.
+ - Compiler options:
+    - `AVR_MCU` : The identifier of target microcontroller. `atmega328p` is used by default.
+    - `AVR_FCPU` : The clock frequency of target microcontroller. `16000000` is used by default.
+ - Programmer options:
+    - `AVRDUDE_PORT` : Port to which the programmer is connected. *NIX might be `/dev/the_name_of_device`, Windows might be `COM#`.
+    - `AVRDUDE_BAUDRATE` : The communication baudrate between PC and programmer, `19200` is used by default.
+    - `AVRDUDE_PROGRAMMER` : The identifier of programmer. `avrisp` is used by default.
+
+## Arduino supports
+
+Sorry, currently this toolchain **not supports** Arduino headers, libraries or programms(`.ino`).
 
 ## License
 
