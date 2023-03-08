@@ -6,7 +6,12 @@ CMake toolchain for AVR microcontroller
 
 ## Usage
 
-### 0. Preparation
+You can use this toolchain by some ways:
+
+ 1. Configure project only for AVR (always use toolchain when build project)
+ 2. Configure project for cross-platform software (use toolchain only if build for AVR)
+
+### Before you use...
 
 This repository depends on [arduino-cli](https://github.com/arduino/arduino-cli), and need to install `arduino:avr` core before you use it:
 
@@ -14,184 +19,76 @@ This repository depends on [arduino-cli](https://github.com/arduino/arduino-cli)
 arduino-cli core install arduino:avr
 ```
 
-### 1. Install AVR toolchain to your project
+### 1. Always use toolchain when build project
 
-Add the following statements to `CMakeLists.txt` located in the project root:
+If you always want to use AVR toolchain, please insert following lines into `CMakeLists.txt`.
+
+**NOTE:** Please insert them before `project()` statement!
 
 ```cmake
-# mcu settings
-set(AVR_MCU "atmega328p" CACHE STRING "The name of target microcontroller")
-set(AVR_FCPU 16000000 CACHE STRING "The frequency of target")
-
-# programmer settings
-set(AVRDUDE_PROGRAMMER "avrisp" CACHE STRING "The name of programmer")
-set(AVRDUDE_BAUDRATE 19200 CACHE STRING "Baudrate used for communicate between PC and programmer")
-
 # fetch and enable AVR toolchain
 include(FetchContent)
 FetchContent_Declare(
     avr_toolchain
     GIT_REPOSITORY https://github.com/Enchan1207/cmake-avr
-    GIT_TAG v0.1.0
+    GIT_TAG v0.2.0
 )
 FetchContent_Populate(avr_toolchain)
 set(CMAKE_TOOLCHAIN_FILE "${avr_toolchain_SOURCE_DIR}/cmake/avr_toolchain.cmake")
 ```
 
-The AVR toolchain is installed to your project as CMake dependency and you'll become able to use the macros shown below:
+### 2. Use toolchain only if build for AVR
 
- - `target_configure_for_avr(the_name_of_target)`  
-   Configure your target for AVR. Specifically, include directories and compilation options are added or changed.  
+If your project is developed as cross-platform software, add `--toolchain=` options to cmake when configure.
 
- - `add_executable_avr(the_name_of_target)`  
-   Make your target executable on AVR. This macro invokes `target_configure_for_avr` internally.
-
- - `add_library_avr(the_name_of_target)`  
-   Configure your target as a library for AVR. This macro invokes `target_configure_for_avr` internally.
-
-And the custom targets will be added:
-
- - `flash-{target_name}` : Flash specified target to your MCU. This target will be created only if you set variable `AVRDUDE_PORT`.
- - `read-fuse` : Read values of fusebits and output to console.
-
-### 2. Code, and create target for AVR
-
-For example...
-
-```C
-//
-// main.cpp
-//
-#include <avr/io.h>
-#include <util/delay.h>
-
-int main() {
-    DDRB = 0xFF;
-    PORTB = 0x55;
-    while (true) {
-        PORTB ^= 0xFF;
-        _delay_ms(500);
-    }
-    return 0;
-}
+```
+cmake .. --toolchain=/path/to/avr_toolchain.cmake
 ```
 
-Next, prepare `CMakeLists.txt`:
+It can be able to build your project for AVR without making any changes to `CMakeLists.txt`.
+
+### Custom macros
+
+This toolchain provides custom macros named `target_configure_for_avr()`. It can use like this:
 
 ```cmake
-#
-# CMakeLists.txt
-#
-cmake_minimum_required(VERSION 3.0)
-
-# mcu settings
-set(AVR_MCU "atmega328p" CACHE STRING "The name of target microcontroller")
-set(AVR_FCPU 16000000 CACHE STRING "The frequency of target")
-
-# programmer settings
-set(AVRDUDE_PROGRAMMER "avrisp" CACHE STRING "The name of programmer")
-set(AVRDUDE_BAUDRATE 19200 CACHE STRING "Baudrate used for communicate between PC and programmer")
-
-# fetch and enable AVR toolchain
-include(FetchContent)
-FetchContent_Declare(
-    avr_toolchain
-    GIT_REPOSITORY https://github.com/Enchan1207/cmake-avr
-    GIT_TAG v0.1.0
-)
-FetchContent_Populate(avr_toolchain)
-set(CMAKE_TOOLCHAIN_FILE "${avr_toolchain_SOURCE_DIR}/cmake/avr_toolchain.cmake")
-
-#
-# project configuration
-#
-project(test
-    VERSION 0.1.0
-    DESCRIPTION "parse and evaluate formula"
-    LANGUAGES C CXX
-)
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-add_executable_avr(main)
+add_executable(main)
 target_sources(main PRIVATE
     main.cpp
 )
+
+# If your project is not only for AVR,
+# please check if BUILD_FOR_AVR is defined and its value is `true`
+if(${BUILD_FOR_AVR})
+    target_configure_for_avr(main)
+endif()
 ```
 
-The compositon of project directory should look like this:
+This macro adds the following custom targets and commands to your target:
 
-```
-.
-├── CMakeLists.txt
-└── main.cpp
-```
+ - Flash target:  
+   Custom target named `flash-{target_name}` for flashing.
+   If you execute this target, built programms will be flashed to microcontroller by `avrdude`.
+ - Memory usage confirmation:  
+   After the target has finished building, the memory usage calculated by `avr-objdump` is displayed to console.
 
-### 3. Build
+## Variables
 
-Create build directory and move:
+You can specify some options to cmake-avr. These can be checked and edited using ccmake, cmake-gui or command-line options.
 
-```
-mkdir build
-cd build
-```
+ - Environmental options:
+    - `ARDUINOCLI_ROOT` : Root path of arduino-cli. If you installed arduino-cli to custom directory, you need to set this.
+ - Compiler options:
+    - `AVR_MCU` : The identifier of target microcontroller. `atmega328p` is used by default.
+    - `AVR_FCPU` : The clock frequency of target microcontroller. `16000000` is used by default.
+ - Programmer options:
+    - `AVRDUDE_PORT` : Port to which the programmer is connected. *NIX might be `/dev/the_name_of_device`, Windows might be `COM#`.
+    - `AVRDUDE_BAUDRATE` : The communication baudrate between PC and programmer, `19200` is used by default.
+    - `AVRDUDE_PROGRAMMER` : The identifier of programmer. `avrisp` is used by default.
 
-Connect programmer to your PC, and configure CMake:
+## Arduino supports
 
-```
-cmake .. -DAVRDUDE_PORT=/dev/device_name_of_programmer
-```
-
-Build:
-
-```
-cmake --build .
-```
-
-### 4. Flash
-
-When project is successfully configured and built, the target for flashing will be created.
-
-```
-cmake --build . --target flash-main
-```
-
-```
-avrdude: AVR device initialized and ready to accept instructions
-
-Reading | ################################################## | 100% 0.05s
-
-avrdude: Device signature = 0x1e950f (probably m328p)
-avrdude: NOTE: "flash" memory has been specified, an erase cycle will be performed
-         To disable this feature, specify the -D option.
-avrdude: erasing chip
-avrdude: reading input file "main"
-avrdude: input file main auto detected as ELF
-avrdude: writing flash (166 bytes):
-
-Writing | ################################################## | 100% 0.32s
-
-avrdude: 166 bytes of flash written
-avrdude: verifying flash memory against main:
-avrdude: load data flash data from input file main:
-avrdude: input file main auto detected as ELF
-avrdude: input file main contains 166 bytes
-avrdude: reading on-chip flash data:
-
-Reading | ################################################## | 100% 0.19s
-
-avrdude: verifying ...
-avrdude: 166 bytes of flash verified
-
-avrdude done.  Thank you.
-```
-
-OK, Now your code is running on your AVR!
-
-## Note
-
-Currently, this toolchain **not supports** Arduino headers, libraries, or programms(.ino).
+Sorry, currently this toolchain **not supports** Arduino headers, libraries or programms(`.ino`).
 
 ## License
 
