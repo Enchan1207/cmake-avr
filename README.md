@@ -31,7 +31,7 @@ include(FetchContent)
 FetchContent_Declare(
     avr_toolchain
     GIT_REPOSITORY https://github.com/Enchan1207/cmake-avr
-    GIT_TAG v0.1.0
+    GIT_TAG v0.2.0
 )
 FetchContent_Populate(avr_toolchain)
 set(CMAKE_TOOLCHAIN_FILE "${avr_toolchain_SOURCE_DIR}/cmake/avr_toolchain.cmake")
