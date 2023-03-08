@@ -81,15 +81,25 @@ set(AVRDUDE "${AVRDUDE_BIN}/avrdude" CACHE PATH "avrdude" FORCE)
 # 環境設定
 #
 
-# コンパイラフラグ、最適化フラグの設定
-set(COMMON_FLAGS "-mmcu=${AVR_MCU} -DF_CPU=${AVR_FCPU} -fno-threadsafe-statics -fno-exceptions")
+# インクルードディレクトリの設定
+include_directories(${AVRGCC_ROOT}/avr/include)
+
+# リンクディレクトリの設定
+link_directories(${AVRGCC_ROOT}/avr/lib)
+
+# コンパイルフラグの設定
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     set(OPTIMIZATION_FLAGS "-Os")
 else()
     set(OPTIMIZATION_FLAGS "-Os -g")
 endif()
-set(COMPILER_FLAGS "${COMMON_FLAGS} ${OPTIMIZATION_FLAGS}")
-set(LINKER_FLAGS "${COMMON_FLAGS} -lc")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mmcu=${AVR_MCU} -DF_CPU=${AVR_FCPU} ${OPTIMIZATION_FLAGS}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-threadsafe-statics -fno-exceptions")
+
+# リンカフラグの設定
+set(LINKER_FLAGS "-lc")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LINKER_FLAGS}")
+set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${LINKER_FLAGS}")
 
 # avrdudeの設定 (ボーレートとかプログラマとか)
 if(NOT AVRDUDE_BAUDRATE)
@@ -100,34 +110,9 @@ if(NOT AVRDUDE_PROGRAMMER)
 endif()
 
 #
-# AVR用ターゲット作成マクロ
+# 書込みターゲット作成マクロ
 #
-
-# ターゲットをAVR向けに構成する
 macro(target_configure_for_avr target_name)
-    if(NOT AVR_MCU OR NOT AVR_FCPU)
-        message(FATAL_ERROR "Please specify AVR_MCU (e.g. \"atmega328p\") and AVR_FCPU (e.g. \"16000000\").")
-    endif()
-
-    set_target_properties(${target_name} PROPERTIES
-        COMPILE_FLAGS "${COMPILER_FLAGS}"
-        LINK_FLAGS "${LINKER_FLAGS}"
-    )
-
-    target_include_directories(${target_name} PUBLIC
-        ${AVRGCC_ROOT}/avr/include
-    )
-
-    target_link_directories(${target_name} PUBLIC
-        ${AVRGCC_ROOT}/avr/lib
-    )
-endmacro()
-
-# AVR版 add_executable
-macro(add_executable_avr target_name)
-    add_executable(${target_name})
-    target_configure_for_avr(${target_name})
-
     # ビルド後、バイナリをダンプしてメモリ使用量を表示
     add_custom_command(TARGET ${target_name} POST_BUILD
         COMMAND ${CMAKE_OBJDUMP} -P mem-usage ${target_name}
@@ -150,10 +135,4 @@ macro(add_executable_avr target_name)
     else()
         message(WARNING "Since no port for upload was specified (AVRDUDE_PORT is not set), creation of the flash target is skipped.")
     endif()
-endmacro()
-
-# AVR版 add_library
-macro(add_library_avr target_name)
-    add_library(${target_name})
-    target_configure_for_avr(${target_name})
 endmacro()
