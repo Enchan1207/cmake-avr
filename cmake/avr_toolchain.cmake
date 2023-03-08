@@ -81,11 +81,6 @@ set(AVRDUDE "${AVRDUDE_BIN}/avrdude" CACHE PATH "avrdude" FORCE)
 # 環境設定
 #
 
-# 必要な変数が与えられていることを確認
-if(NOT AVR_MCU OR NOT AVR_FCPU)
-    message(FATAL_ERROR "Please specify AVR_MCU (e.g. \"atmega328p\") and AVR_FCPU (e.g. \"16000000\").")
-endif()
-
 # コンパイラフラグ、最適化フラグの設定
 set(COMMON_FLAGS "-mmcu=${AVR_MCU} -DF_CPU=${AVR_FCPU} -fno-threadsafe-statics -fno-exceptions")
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -110,6 +105,10 @@ endif()
 
 # ターゲットをAVR向けに構成する
 macro(target_configure_for_avr target_name)
+    if(NOT AVR_MCU OR NOT AVR_FCPU)
+        message(FATAL_ERROR "Please specify AVR_MCU (e.g. \"atmega328p\") and AVR_FCPU (e.g. \"16000000\").")
+    endif()
+
     set_target_properties(${target_name} PROPERTIES
         COMPILE_FLAGS "${COMPILER_FLAGS}"
         LINK_FLAGS "${LINKER_FLAGS}"
