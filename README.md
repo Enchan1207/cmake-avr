@@ -16,7 +16,7 @@ arduino-cli core install arduino:avr
 
 ### 1. Install AVR toolchain to your project
 
-Add the following content to `CMakeLists.txt` located in the project root:
+Add the following statements to `CMakeLists.txt` located in the project root:
 
 ```cmake
 # mcu settings
@@ -38,7 +38,7 @@ FetchContent_Populate(avr_toolchain)
 set(CMAKE_TOOLCHAIN_FILE "${avr_toolchain_SOURCE_DIR}/cmake/avr_toolchain.cmake")
 ```
 
-By addition these statements, the AVR toolchain is installed to your project as CMake dependency. And you will become able to use the macros shown below:
+By addition, the AVR toolchain is installed to your project as CMake dependency and you'll become able to use the macros shown below:
 
  - `target_configure_for_avr(the_name_of_target)`  
    Configure your target for AVR. Specifically, include directories and compilation options are added or changed.  
@@ -76,7 +76,7 @@ int main() {
 }
 ```
 
-Next, make targets use this source:
+Next, prepare `CMakeLists.txt`:
 
 ```cmake
 #
@@ -120,7 +120,7 @@ target_sources(main PRIVATE
 )
 ```
 
-Then, the compositon of project directory should look like this:
+The compositon of project directory should look like this:
 
 ```
 .
@@ -130,7 +130,7 @@ Then, the compositon of project directory should look like this:
 
 ### 3. Build
 
-Prepare and move to build directory:
+Create build directory and move:
 
 ```
 mkdir build
@@ -151,13 +151,11 @@ cmake --build .
 
 ### 4. Flash
 
-The project is successfully configured and built, you should have a target for flashing:
+When project is successfully configured and built, the target for flashing will be created.
 
 ```
 cmake --build . --target flash-main
 ```
-
-The log messages from avrdude will be shown:
 
 ```
 avrdude: AVR device initialized and ready to accept instructions
@@ -193,8 +191,7 @@ OK, Now your code is running on your AVR!
 
 ## Note
 
-Currently, this toolchain **not supports** Arduino headers, libraries, or programms(.ino).  
-Thank you for your contributions!
+Currently, this toolchain **not supports** Arduino headers, libraries, or programms(.ino).
 
 ## License
 
