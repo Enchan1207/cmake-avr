@@ -154,7 +154,7 @@ macro(target_configure_for_avr target_name)
                 COMMAND ${AVRDUDE} ${AVRDUDE_COMMON_FLAGS} -U lfuse:r:-:h -U hfuse:r:-:h -U efuse:r:-:h -U lock:r:-:h
             )
         else()
-            message(WARNING "Since no port for upload was specified (AVRDUDE_PORT is not set), creation of the flash target is skipped.")
+            message(NOTICE "Since no port for upload was specified (AVRDUDE_PORT is not set), creation of the flash target is skipped.")
         endif()
     endif()
 endmacro()
