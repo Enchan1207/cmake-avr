@@ -3,7 +3,7 @@
 #
 # 2023 @Enchan1207
 #
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.12)
 set(BUILD_FOR_AVR TRUE)
 
 #
