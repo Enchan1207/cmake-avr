@@ -35,7 +35,6 @@ set(CMAKE_EXE_LINKER_FLAGS_INIT "-mmcu=${AVR_MCU}")
 
 # macro for target configuration
 macro(target_configure_for_avr target_name)
-    # check if this target executable
     get_target_property(target_type ${target_name} TYPE)
     if(target_type STREQUAL "EXECUTABLE")
         set(${target_name}_IS_EXECUTABLE TRUE)
@@ -47,7 +46,6 @@ macro(target_configure_for_avr target_name)
         add_custom_command(TARGET ${target_name} POST_BUILD
             COMMAND ${CMAKE_OBJDUMP} -P mem-usage $<TARGET_FILE:${target_name}>
             COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:${target_name}> $<TARGET_FILE_DIR:${target_name}>/${target_name}.hex
-            COMMENT "show memory usage"
         )
     endif()
 endmacro()
