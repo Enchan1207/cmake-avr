@@ -24,9 +24,6 @@ CMake toolchain for AVR microcontroller
    ```
 
 3. Configure `CMakePresets.json` .
-   > [!WARNING]
-   >
-   > To use [CMake Presets](https://cmake.org/cmake/help/latest/manual/cmake-presets.7.html), CMake >= 3.23 is required.
 
    ```json
    {
