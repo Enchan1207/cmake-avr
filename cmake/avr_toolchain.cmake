@@ -34,7 +34,7 @@ set(CMAKE_CXX_FLAGS_INIT "-mmcu=${AVR_MCU} ${OPTIMIZATION_FLAGS} -DF_CPU=${AVR_F
 set(CMAKE_EXE_LINKER_FLAGS_INIT "-mmcu=${AVR_MCU}")
 
 # macro for target configuration
-macro(target_configure_for_avr target_name)
+macro(avr_add_extra_outputs target_name)
     get_target_property(target_type ${target_name} TYPE)
     if(target_type STREQUAL "EXECUTABLE")
         set(${target_name}_IS_EXECUTABLE TRUE)
