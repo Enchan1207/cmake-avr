@@ -31,7 +31,6 @@ else()
 endif()
 set(CMAKE_C_FLAGS_INIT   "-mmcu=${AVR_MCU} ${OPTIMIZATION_FLAGS} -DF_CPU=${AVR_FCPU}")
 set(CMAKE_CXX_FLAGS_INIT "-mmcu=${AVR_MCU} ${OPTIMIZATION_FLAGS} -DF_CPU=${AVR_FCPU}")
-set(CMAKE_EXE_LINKER_FLAGS_INIT "-mmcu=${AVR_MCU}")
 
 # macro for target configuration
 macro(avr_add_extra_outputs target_name)

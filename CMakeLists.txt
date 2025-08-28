@@ -11,11 +11,13 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     if(NOT CMAKE_BUILD_TYPE)
         set(CMAKE_BUILD_TYPE Release)
     endif()
+
+    include_directories(BEFORE
+        ${PROJECT_SOURCE_DIR}/include
+    )
+    set(AVR_SDK_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
     
-    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libs/CMakeLists.txt")
-        set(AVR_SDK_PATH "${CMAKE_CURRENT_SOURCE_DIR}")
-        add_subdirectory(libs)
-    endif()
+    add_subdirectory(src)
 endif()
 
 # モジュール検索パスに自身を追加
